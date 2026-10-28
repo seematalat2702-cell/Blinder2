@@ -1,0 +1,1 @@
+- [Store branding and editability](store-branding.md) — Preserve the fixed JHARKHAND ENTERPRISES wordmark while keeping store records configurable.

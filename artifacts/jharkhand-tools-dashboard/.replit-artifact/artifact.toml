@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Jharkhand Enterprises Dashboard"
+description = "A premium sales and purchasing dashboard for wholesale power tools, with persistent transaction records, editable product and partner catalogs, analytics, and report exports."
+version = "1.0.0"
+id = "artifacts/jharkhand-tools-dashboard"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25007
+
+[services.development]
+run = "pnpm --filter @workspace/jharkhand-tools-dashboard run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/jharkhand-tools-dashboard", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/jharkhand-tools-dashboard/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25007"
+BASE_PATH = "/"

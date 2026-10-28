@@ -1,40 +1,48 @@
-# [Project name]
+# Jharkhand Enterprises Dashboard
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A sales, purchasing, and analytics workspace for wholesale power-tools stores.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server
+- `pnpm --filter @workspace/jharkhand-tools-dashboard run dev` — run the dashboard
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required environment: `DATABASE_URL` — PostgreSQL connection string
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
+- Frontend: React, Vite, Wouter, TanStack Query, Recharts
+- API: Express 5 with OpenAPI-generated Zod validation and client hooks
 - DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
+- Exports: XLSX workbooks, chart CSV, browser print/PDF
+- Validation and API codegen: Zod, Drizzle, Orval
 - Build: esbuild (CJS bundle)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/jharkhand-tools-dashboard/` — dashboard routes, UI, and theme
+- `artifacts/api-server/src/routes/business.ts` — analytics, transactions, and master-data API
+- `lib/api-spec/openapi.yaml` — source of truth for API contracts
+- `lib/db/src/schema/power-tools.ts` — source of truth for persistent business data
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Store records and transactions persist in PostgreSQL; charts are derived from saved transactions.
+- The API calculates sale totals and profit from quantities and unit rates.
+- The app seeds a small preview dataset only when the company catalog is empty.
+- Reports download as `.xlsx`; chart data can be exported as CSV, and pages can be printed to PDF.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+The app manages sales, purchases, companies/brands, products, customers/dealers, and suppliers. It includes transaction analytics, date-range reporting, payment status, recent activity, and editable master data.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+Keep the dashboard bright and readable, with energetic charts and strong black-and-gold branding.
 
 ## Gotchas
 

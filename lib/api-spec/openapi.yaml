@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: dashboard
+  - name: master-data
+  - name: sales
+  - name: purchases
 paths:
   /healthz:
     get:
@@ -24,7 +28,261 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get dashboard analytics
+      parameters:
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [today, week, month, year, custom]
+        - in: query
+          name: from
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          schema: { type: string, format: date }
+        - in: query
+          name: granularity
+          schema:
+            type: string
+            enum: [daily, weekly, monthly, yearly]
+      responses:
+        "200":
+          description: Dashboard metrics and breakdowns
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardData"
+  /activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Get recent business activity
+      responses:
+        "200":
+          description: Recent activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ActivityItem" }
+  /masters/{type}:
+    get:
+      operationId: listMasterData
+      tags: [master-data]
+      summary: List records of a master-data type
+      parameters:
+        - $ref: "#/components/parameters/MasterType"
+      responses:
+        "200":
+          description: Master data records
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/MasterRecord" }
+    post:
+      operationId: createMasterData
+      tags: [master-data]
+      summary: Create master-data record
+      parameters:
+        - $ref: "#/components/parameters/MasterType"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MasterInput" }
+      responses:
+        "201":
+          description: Created record
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MasterRecord" }
+  /masters/{type}/{id}:
+    patch:
+      operationId: updateMasterData
+      tags: [master-data]
+      summary: Update master-data record
+      parameters:
+        - $ref: "#/components/parameters/MasterType"
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MasterInput" }
+      responses:
+        "200":
+          description: Updated record
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MasterRecord" }
+    delete:
+      operationId: deleteMasterData
+      tags: [master-data]
+      summary: Delete master-data record
+      parameters:
+        - $ref: "#/components/parameters/MasterType"
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Deleted
+  /sales:
+    get:
+      operationId: listSales
+      tags: [sales]
+      summary: List sales transactions
+      parameters:
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+        - $ref: "#/components/parameters/PaymentStatus"
+      responses:
+        "200":
+          description: Sales transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Sale" }
+    post:
+      operationId: createSale
+      tags: [sales]
+      summary: Create a sale
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SaleInput" }
+      responses:
+        "201":
+          description: Created sale
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Sale" }
+  /sales/{id}:
+    patch:
+      operationId: updateSale
+      tags: [sales]
+      summary: Update a sale
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SaleInput" }
+      responses:
+        "200":
+          description: Updated sale
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Sale" }
+    delete:
+      operationId: deleteSale
+      tags: [sales]
+      summary: Delete a sale
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Deleted
+  /purchases:
+    get:
+      operationId: listPurchases
+      tags: [purchases]
+      summary: List purchase transactions
+      parameters:
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+        - $ref: "#/components/parameters/PaymentStatus"
+      responses:
+        "200":
+          description: Purchase transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Purchase" }
+    post:
+      operationId: createPurchase
+      tags: [purchases]
+      summary: Create a purchase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PurchaseInput" }
+      responses:
+        "201":
+          description: Created purchase
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Purchase" }
+  /purchases/{id}:
+    patch:
+      operationId: updatePurchase
+      tags: [purchases]
+      summary: Update a purchase
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PurchaseInput" }
+      responses:
+        "200":
+          description: Updated purchase
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Purchase" }
+    delete:
+      operationId: deletePurchase
+      tags: [purchases]
+      summary: Delete a purchase
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Deleted
 components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+    MasterType:
+      name: type
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [companies, products, customers, suppliers]
+    Search:
+      name: search
+      in: query
+      schema: { type: string }
+    From:
+      name: from
+      in: query
+      schema: { type: string, format: date }
+    To:
+      name: to
+      in: query
+      schema: { type: string, format: date }
+    PaymentStatus:
+      name: paymentStatus
+      in: query
+      schema:
+        type: string
+        enum: [received, pending]
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +291,155 @@ components:
           type: string
       required:
         - status
+    MasterRecord:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        category: { type: ["string", "null"] }
+        companyId: { type: ["integer", "null"] }
+        companyName: { type: ["string", "null"] }
+        purchasePrice: { type: ["number", "null"] }
+        sellingPrice: { type: ["number", "null"] }
+        phone: { type: ["string", "null"] }
+        area: { type: ["string", "null"] }
+        contact: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+    MasterInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1 }
+        category: { type: string }
+        companyId: { type: integer }
+        purchasePrice: { type: number, minimum: 0 }
+        sellingPrice: { type: number, minimum: 0 }
+        phone: { type: string }
+        area: { type: string }
+        contact: { type: string }
+    Sale:
+      type: object
+      required: [id, date, invoice, customerId, customerName, productId, productName, companyId, companyName, quantity, purchaseRate, sellingRate, totalAmount, profit, profitPercent, paymentStatus, createdAt]
+      properties:
+        id: { type: integer }
+        date: { type: string, format: date }
+        invoice: { type: string }
+        customerId: { type: integer }
+        customerName: { type: string }
+        productId: { type: integer }
+        productName: { type: string }
+        companyId: { type: integer }
+        companyName: { type: string }
+        quantity: { type: integer }
+        purchaseRate: { type: number }
+        sellingRate: { type: number }
+        totalAmount: { type: number }
+        profit: { type: number }
+        profitPercent: { type: number }
+        paymentStatus: { type: string, enum: [received, pending] }
+        createdAt: { type: string, format: date-time }
+    SaleInput:
+      type: object
+      required: [date, invoice, customerId, productId, companyId, quantity, purchaseRate, sellingRate, paymentStatus]
+      properties:
+        date: { type: string, format: date }
+        invoice: { type: string, minLength: 1 }
+        customerId: { type: integer }
+        productId: { type: integer }
+        companyId: { type: integer }
+        quantity: { type: integer, minimum: 1 }
+        purchaseRate: { type: number, minimum: 0 }
+        sellingRate: { type: number, minimum: 0 }
+        paymentStatus: { type: string, enum: [received, pending] }
+    Purchase:
+      type: object
+      required: [id, date, invoice, supplierId, supplierName, productId, productName, companyId, companyName, quantity, purchaseRate, totalAmount, paymentStatus, createdAt]
+      properties:
+        id: { type: integer }
+        date: { type: string, format: date }
+        invoice: { type: string }
+        supplierId: { type: integer }
+        supplierName: { type: string }
+        productId: { type: integer }
+        productName: { type: string }
+        companyId: { type: integer }
+        companyName: { type: string }
+        quantity: { type: integer }
+        purchaseRate: { type: number }
+        totalAmount: { type: number }
+        paymentStatus: { type: string, enum: [received, pending] }
+        createdAt: { type: string, format: date-time }
+    PurchaseInput:
+      type: object
+      required: [date, invoice, supplierId, productId, companyId, quantity, purchaseRate, paymentStatus]
+      properties:
+        date: { type: string, format: date }
+        invoice: { type: string, minLength: 1 }
+        supplierId: { type: integer }
+        productId: { type: integer }
+        companyId: { type: integer }
+        quantity: { type: integer, minimum: 1 }
+        purchaseRate: { type: number, minimum: 0 }
+        paymentStatus: { type: string, enum: [received, pending] }
+    ActivityItem:
+      type: object
+      required: [id, kind, title, subtitle, date, amount]
+      properties:
+        id: { type: string }
+        kind: { type: string, enum: [sale, purchase] }
+        title: { type: string }
+        subtitle: { type: string }
+        date: { type: string, format: date }
+        amount: { type: number }
+    TrendPoint:
+      type: object
+      required: [label, sales, purchases, profit, margin]
+      properties:
+        label: { type: string }
+        sales: { type: number }
+        purchases: { type: number }
+        profit: { type: number }
+        margin: { type: number }
+    BreakdownPoint:
+      type: object
+      required: [name, value]
+      properties:
+        name: { type: string }
+        value: { type: number }
+    ComparisonPoint:
+      type: object
+      required: [label, current, previous]
+      properties:
+        label: { type: string }
+        current: { type: number }
+        previous: { type: number }
+    DashboardData:
+      type: object
+      required: [totalSales, totalPurchases, grossProfit, profitMargin, transactionCount, pendingAmount, trends, topProducts, topCompanies, categories, profitContribution, comparison]
+      properties:
+        totalSales: { type: number }
+        totalPurchases: { type: number }
+        grossProfit: { type: number }
+        profitMargin: { type: number }
+        transactionCount: { type: integer }
+        pendingAmount: { type: number }
+        trends:
+          type: array
+          items: { $ref: "#/components/schemas/TrendPoint" }
+        topProducts:
+          type: array
+          items: { $ref: "#/components/schemas/BreakdownPoint" }
+        topCompanies:
+          type: array
+          items: { $ref: "#/components/schemas/BreakdownPoint" }
+        categories:
+          type: array
+          items: { $ref: "#/components/schemas/BreakdownPoint" }
+        profitContribution:
+          type: array
+          items: { $ref: "#/components/schemas/BreakdownPoint" }
+        comparison:
+          type: array
+          items: { $ref: "#/components/schemas/ComparisonPoint" }
 
